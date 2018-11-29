@@ -25,7 +25,7 @@ var option = {
   dataZoom : {
     show : false,
     start : 0,
-    end : 100
+    end : 60
   },
   xAxis : [
     {
@@ -42,7 +42,7 @@ var option = {
       //boundaryGap: [0.2, 0.2],
       splitNumber :'10',
       min:0,
-      max:300
+      max:2000
     }
   ],
   series : [
@@ -70,7 +70,7 @@ var data = [];
 var label = [];
 
 function setup(){
-  var wsServer = 'ws://192.168.11.187:4444';
+  var wsServer = 'ws://127.0.0.1:4444';
   var ws = new WebSocket(wsServer);
 
   ws.onopen = function (e) {
@@ -85,13 +85,14 @@ function setup(){
   ws.onmessage = function(e) {
     var d = JSON.parse(e.data)
     data.push(d.event.count)
-    label.push(new Date().getTime())
-    if(data.length > 100) {data.shift() }
-    if(label.length > 100) {label.shift() }
+    label.push(new Date().toISOString())
+    if(data.length > 60) {data.shift() }
+    if(label.length > 60) {label.shift() }
     var opt = {
-      title: { text: (new Date()).getTime() },
+      title: { text: (new Date()).toISOString() },
       xAxis  : [ { type : 'category', boundaryGap : true, data : label }],
-      series : [ {name : "CPU使用率", data: data, type: "line"} ] 
+      smooth:true,  //这句就是让曲线变平滑的
+      series : [ {name : "CPU使用率", data: data, type: "line", smooth: true} ] 
     }
     log("RECEIVED: " + d.event.count, e);
     // ws.close();
